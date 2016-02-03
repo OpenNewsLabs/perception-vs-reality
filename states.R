@@ -45,20 +45,62 @@ ggplot(states.m) +
   geom_point(aes(x = value, y = factor(year))) +
   facet_wrap(location~variable)
 
+ggsave('states.png', width = 12, height = 12)
+
+head(states.m)
+
+states.m$actual <- ifelse(states.m$variable == 'cand1_pct', states.m$cand1_actual, states.m$cand2_actual)
+
+states.m$year.f <- factor(states.m$year, levels =  c('2012', '2008', '2004', '2000'))
+
+states.m$diff <- states.m$value - states.m$actual
+
 for (i in unique(states.m$location)) {
   
   ggplot(states.m[states.m$location == i, ]) +
-    geom_point(aes(x = value, y = factor(year))) +
-    facet_wrap(location~variable)
+    geom_point(aes(x = diff, y = year.f, color = variable)) +
+    facet_wrap(location~variable) +
+    scale_color_manual(values = c('blue', 'red'))  +
+    theme(legend.position = 'none') +
+    geom_vline(xintercept = 0) +
+    labs(x = 'error (%)', y = '')
   
-  ggsave()
+  ggsave(paste0(i, 'plot.png'), width = 8, height = 6)
   
 }
 
+head(states.m)
 
 ggplot(states.m[states.m$location == 'IA', ]) +
-  geom_point(aes(x = value, y = factor(year), color = variable)) +
+  geom_point(aes(x = diff, y = year.f, color = variable)) +
   facet_wrap(location~variable) +
   scale_color_manual(values = c('blue', 'red'))  +
-  theme(legend.position = 'none') 
+  theme(legend.position = 'none') +
+  geom_vline(xintercept = 0) +
+  labs(x = 'error (%)', y = '')
+
+
+for (i in unique(states.m$location)) {
+  
+ggplot(states.m[states.m$location == i, ]) +
+  geom_point(aes(x = value, y = year.f, color = variable)) +
+  facet_wrap(location~variable) +
+  scale_color_manual(values = c('blue', 'red'))  +
+  theme(legend.position = 'none') +
+  geom_point(aes(x = actual, y = year.f), size = 8, color = 'darkgreen', shape = 18) +
+  labs(x = '% of vote acc. to poll', y = '')
+
+ggsave(paste0('github/',i, '.png', width = 8, height = 6))
+
+}
+
+
+
+
+
+
+
+
+
+
   
